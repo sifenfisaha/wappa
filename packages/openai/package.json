@@ -1,0 +1,15 @@
+{
+  "name": "@wappa/openai",
+  "version": "0.1.0",
+  "description": "OpenAI (and OpenAI-compatible) LLM provider for wappa WhatsApp agents.",
+  "type": "module",
+  "license": "MIT",
+  "engines": { "node": ">=20" },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } },
+  "files": ["dist"],
+  "scripts": { "build": "tsc -b", "test": "vitest run" },
+  "dependencies": { "@wappa/core": "^0.1.0", "openai": "^7.9.0" },
+  "keywords": ["openai", "gpt", "wappa", "llm", "provider"]
+}
