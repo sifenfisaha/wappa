@@ -1,0 +1,15 @@
+{
+  "name": "@wappa/anthropic",
+  "version": "0.1.0",
+  "description": "Anthropic (Claude) LLM provider for wappa WhatsApp agents.",
+  "type": "module",
+  "license": "MIT",
+  "engines": { "node": ">=20" },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } },
+  "files": ["dist"],
+  "scripts": { "build": "tsc -b", "test": "vitest run" },
+  "dependencies": { "@anthropic-ai/sdk": "^0.123.0", "@wappa/core": "^0.1.0" },
+  "keywords": ["anthropic", "claude", "wappa", "llm", "provider"]
+}
