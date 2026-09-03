@@ -1,0 +1,18 @@
+{
+  "name": "@wappa/core",
+  "version": "0.1.0",
+  "description": "Transport-agnostic core for building WhatsApp agents: agent loop, tools, middleware, sessions.",
+  "type": "module",
+  "license": "MIT",
+  "engines": { "node": ">=20" },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
+    "./testing": { "types": "./dist/testing.d.ts", "default": "./dist/testing.js" }
+  },
+  "files": ["dist"],
+  "scripts": { "build": "tsc -b", "test": "vitest run" },
+  "dependencies": { "zod": "^4.5.4" },
+  "keywords": ["whatsapp", "agent", "bot", "llm", "framework"]
+}
