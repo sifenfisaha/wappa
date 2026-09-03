@@ -1,0 +1,15 @@
+{
+  "name": "@wappa/cloud-api",
+  "version": "0.1.0",
+  "description": "Official WhatsApp Cloud API transport adapter for wappa (Meta Business webhook + Graph API).",
+  "type": "module",
+  "license": "MIT",
+  "engines": { "node": ">=20" },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } },
+  "files": ["dist"],
+  "scripts": { "build": "tsc -b", "test": "vitest run" },
+  "dependencies": { "@wappa/core": "^0.1.0" },
+  "keywords": ["whatsapp", "cloud-api", "wappa", "transport"]
+}
