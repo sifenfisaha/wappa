@@ -1,0 +1,12 @@
+{
+  "name": "create-wappa-agent",
+  "version": "0.1.0",
+  "description": "Scaffold a new wappa WhatsApp agent project: npm create wappa-agent my-bot",
+  "type": "module",
+  "license": "MIT",
+  "engines": { "node": ">=20" },
+  "bin": { "create-wappa-agent": "./dist/index.js" },
+  "files": ["dist", "templates"],
+  "scripts": { "build": "tsc -b", "test": "vitest run" },
+  "keywords": ["whatsapp", "wappa", "scaffold", "create"]
+}

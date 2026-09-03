@@ -1,0 +1,48 @@
+<<<import>>>
+import { CloudApiTransport } from '@wappa/cloud-api';
+<<<setup>>>
+/** Read a required environment variable, failing fast with a helpful message. */
+function requireEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) throw new Error(`Missing environment variable ${name} — see .env.example`);
+  return value;
+}
+
+// Official WhatsApp Cloud API — the transport runs a webhook server on PORT.
+// Point the Meta app dashboard at it (callback URL + verify token); README.md
+// walks through the setup.
+const transport = new CloudApiTransport({
+  accessToken: requireEnv('WHATSAPP_ACCESS_TOKEN'),
+  phoneNumberId: requireEnv('WHATSAPP_PHONE_NUMBER_ID'),
+  verifyToken: requireEnv('WHATSAPP_VERIFY_TOKEN'),
+  appSecret: process.env.WHATSAPP_APP_SECRET,
+  port: Number(process.env.PORT ?? 3000),
+});
+<<<env>>>
+# WhatsApp Cloud API credentials — from the Meta app dashboard
+# (WhatsApp → API Setup): https://developers.facebook.com/apps/
+WHATSAPP_ACCESS_TOKEN=
+WHATSAPP_PHONE_NUMBER_ID=
+# Any string you choose; enter the same value in the webhook configuration.
+WHATSAPP_VERIFY_TOKEN=change-me
+# App secret enables webhook signature validation (strongly recommended).
+WHATSAPP_APP_SECRET=
+# Port for the webhook server.
+PORT=3000
+<<<readme>>>
+## Webhook setup (WhatsApp Cloud API)
+
+The bot starts a webhook server on `PORT` (default 3000). Point Meta at it:
+
+1. Create a Meta app with the WhatsApp product at
+   <https://developers.facebook.com/apps/> and copy the access token, phone
+   number id, and app secret into `.env`.
+2. Expose the server on a public HTTPS URL — deploy it, or tunnel during
+   development (e.g. `ngrok http 3000`).
+3. In the app dashboard under WhatsApp → Configuration, set the webhook
+   callback URL to `https://<your-host>/webhook`, enter the same verify token
+   as `WHATSAPP_VERIFY_TOKEN` in `.env`, and subscribe to the `messages`
+   webhook field.
+
+Then message your business number on WhatsApp to try it out. Note the Cloud
+API is DM-only — group chats are not supported.

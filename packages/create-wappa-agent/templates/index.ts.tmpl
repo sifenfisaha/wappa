@@ -1,0 +1,54 @@
+/**
+ * __PROJECT_NAME__ — a WhatsApp agent built with wappa.
+ *
+ * The agent's brain is an LLM with tool calling; its body is a WhatsApp
+ * transport. Edit the instructions and tools below to make it yours.
+ */
+import { Agent, Bot, FileSessionStore, defineTool } from '@wappa/core';
+__TRANSPORT_IMPORT__
+__PROVIDER_IMPORT__
+
+__TRANSPORT_SETUP__
+
+__PROVIDER_SETUP__
+
+/** A starter tool — swap it for tools that reach your own systems. */
+const currentTime = defineTool({
+  name: 'current_time',
+  description: 'Get the current date and time.',
+  execute: () => new Date().toString(),
+});
+
+const agent = new Agent({
+  instructions:
+    'You are a friendly WhatsApp assistant for __PROJECT_NAME__. ' +
+    'Keep replies short — this is chat, not email.',
+  provider,
+  tools: [currentTime],
+});
+
+const bot = new Bot({
+  transport,
+  agent,
+  // Conversations survive restarts as one JSON file per chat under ./sessions.
+  sessions: new FileSessionStore('./sessions'),
+});
+
+// Commands run before the agent — handy for utilities and overrides.
+bot.command('/reset', async (ctx) => {
+  ctx.session.history = [];
+  await ctx.reply('Conversation history cleared.');
+});
+
+bot.on('ready', (info) => {
+  console.log(`Bot is ready${info.selfId ? ` (logged in as ${info.selfId})` : ''}.`);
+});
+
+// Finish in-flight replies and save sessions before exiting.
+for (const signal of ['SIGINT', 'SIGTERM'] as const) {
+  process.once(signal, () => {
+    void bot.stop().then(() => process.exit(0));
+  });
+}
+
+await bot.start();

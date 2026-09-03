@@ -1,0 +1,31 @@
+# __PROJECT_NAME__
+
+A WhatsApp agent built with the [wappa](https://www.npmjs.com/package/@wappa/core)
+framework — __TRANSPORT_LABEL__ transport + __PROVIDER_LABEL__ for the brain.
+
+## Run it
+
+```bash
+npm install
+cp .env.example .env   # then fill in the values
+npm run build
+npm start
+```
+
+__TRANSPORT_README__
+
+__PROVIDER_README__
+
+## Make it yours
+
+- Edit the agent's `instructions` in `src/index.ts` — the function form
+  (`instructions: (ctx) => ...`) lets you inject per-user context.
+- Add tools with `defineTool` — anything your systems can do, the agent can do.
+- Add `bot.command()` / `bot.hears()` routes for deterministic replies that
+  skip the LLM entirely (a `/reset` command is included).
+- Middleware via `bot.use()` handles cross-cutting concerns; `rateLimit()` from
+  `@wappa/core` is a ready-made one.
+- Conversation history lives as JSON files under `./sessions` — delete a file
+  (or send `/reset` in chat) to start a conversation over.
+- Unit-test your bot without WhatsApp or an LLM key using `MockTransport` and
+  `ScriptedProvider` from `@wappa/core/testing`.

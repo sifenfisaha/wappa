@@ -1,0 +1,20 @@
+{
+  "name": "__PROJECT_NAME__",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "build": "tsc",
+    "start": "node --env-file=.env dist/index.js"
+  },
+  "dependencies": {
+    "@wappa/core": "__FRAM_VERSION__",
+    "__TRANSPORT_DEP__": "__FRAM_VERSION__",
+    "__PROVIDER_DEP__": "__FRAM_VERSION__"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "~5.9.0"
+  }
+}

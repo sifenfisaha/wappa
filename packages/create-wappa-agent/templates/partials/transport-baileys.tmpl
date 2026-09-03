@@ -1,0 +1,23 @@
+<<<import>>>
+import { BaileysTransport } from '@wappa/baileys';
+<<<setup>>>
+// Baileys — personal-number login. Scan the QR code printed on first start;
+// auth state is saved under ./wappa-auth so restarts reconnect silently.
+// WARNING: Baileys is an unofficial client. Using it may violate WhatsApp's
+// Terms of Service and can get numbers banned — use a number you can afford
+// to lose, and prefer @wappa/cloud-api for production.
+const transport = new BaileysTransport({ authDir: './wappa-auth' });
+<<<env>>>
+# Baileys needs no credentials here — you log in by scanning a QR code on
+# first start. Auth state is stored under ./wappa-auth.
+<<<readme>>>
+## WhatsApp login (Baileys)
+
+On first `npm start` a QR code is printed in the terminal: scan it from
+WhatsApp on your phone (Settings → Linked devices → Link a device). Auth state
+is saved under `./wappa-auth`, so later starts reconnect without a QR scan.
+
+> **Warning — unofficial client.** Baileys is not an official WhatsApp API.
+> Using it may violate WhatsApp's Terms of Service and can get your number
+> banned. Use a number you can afford to lose, and prefer the official Cloud
+> API (`npm create wappa-agent -- --transport cloud-api`) for production.
