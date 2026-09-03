@@ -1,0 +1,17 @@
+{
+  "name": "wappa-example-cloud-api-agent",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -b",
+    "start": "node --env-file=.env dist/index.js",
+    "dev": "node --watch --env-file=.env dist/index.js"
+  },
+  "dependencies": {
+    "@wappa/cloud-api": "^0.1.0",
+    "@wappa/core": "^0.1.0",
+    "@wappa/openai": "^0.1.0",
+    "zod": "^4.5.4"
+  }
+}

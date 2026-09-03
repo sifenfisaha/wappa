@@ -1,0 +1,15 @@
+{
+  "name": "wappa-example-echo-bot",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -b",
+    "start": "node dist/index.js",
+    "dev": "node --watch dist/index.js"
+  },
+  "dependencies": {
+    "@wappa/baileys": "^0.1.0",
+    "@wappa/core": "^0.1.0"
+  }
+}
