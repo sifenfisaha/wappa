@@ -1,0 +1,8 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.env
+wappa-auth/
+.wappa-sessions/
+sessions/
+coverage/
