@@ -760,6 +760,103 @@ run the transport against a real `node:http` server on an ephemeral port with a 
 
 ---
 
+# @wappa/twilio
+
+Deps: `@wappa/core` only (global `fetch`, `node:http`, `node:crypto` — no Twilio SDK).
+Twilio is a WhatsApp BSP: inbound arrives as form-encoded webhooks, outbound goes
+through the Twilio Messages REST API with basic auth.
+
+```ts
+export interface TwilioTransportOptions {
+  accountSid: string;            // ACxxxx
+  authToken: string;             // used for basic auth AND webhook signature validation
+  /** Your Twilio WhatsApp sender, with or without the 'whatsapp:' prefix. */
+  whatsappNumber: string;        // e.g. 'whatsapp:+14155238886' or '+14155238886'
+  /** If set, transport starts its own node:http server on this port. */
+  port?: number;
+  webhookPath?: string;          // default '/webhook'
+  /**
+   * The exact public URL Twilio POSTs to (scheme + host + path), used for
+   * X-Twilio-Signature validation. STRONGLY recommended behind proxies/tunnels;
+   * if omitted OR empty ('' from an unset env var via --env-file behaves like
+   * undefined), reconstructed as 'https://' + Host header + path (warn once).
+   */
+  webhookUrl?: string;
+  /** Disable signature validation (tests only). Default true. */
+  validateSignature?: boolean;
+  apiBaseUrl?: string;           // default 'https://api.twilio.com' (override for tests)
+  logger?: Logger;
+}
+
+export class TwilioTransport implements Transport {
+  readonly name: 'twilio';
+  constructor(opts: TwilioTransportOptions);
+  /** Mount into an existing server; same contract as CloudApiTransport.handleRequest. */
+  handleRequest(req: IncomingMessage, res: ServerResponse, rawBody?: Buffer): Promise<boolean>;
+}
+```
+
+Behavior:
+- Webhook POST (application/x-www-form-urlencoded): validate `X-Twilio-Signature`
+  when validateSignature (default true): base64 HMAC-SHA1 over
+  `<webhookUrl><key1><value1>...` with params sorted by key, timing-safe compare
+  (hash both sides first); invalid → 403, don't process. Valid → respond immediately
+  with 200 `Content-Type: text/xml` body `<Response/>` (empty TwiML so Twilio sends no
+  auto-reply), then process async (NON-BLOCKING delivery + bounded ≈1000-entry
+  `MessageSid` DEDUP, mirroring the cloud-api rules). Body cap 1 MiB.
+- Skip status callbacks: any request with `MessageStatus`/`SmsStatus` and no
+  inbound content (no Body, NumMedia 0) is acknowledged and ignored.
+- Inbound mapping → InboundMessage:
+  `id = MessageSid`; `chatId = senderId = From` VERBATIM (e.g. 'whatsapp:+15551234567' —
+  ids are transport-specific and this round-trips into send());
+  `senderName = ProfileName`; `isGroup = false` (Twilio WhatsApp is DM-only);
+  `fromMe = false`; `timestamp = Date.now()` (Twilio sends no epoch);
+  `text = Body` (or ButtonText); `buttonId = ButtonPayload` (template quick replies);
+  `NumMedia > 0` → `media` = lazy MediaRef for MediaUrl0 (GET following redirects →
+  Buffer; the basic-auth header is sent ONLY when the URL's origin equals apiBaseUrl's —
+  MediaUrl values come from the webhook payload and credentials must never reach a
+  foreign host; kind derived from MediaContentType0, ptt for audio/ogg voice);
+  `Latitude`/`Longitude` → location; `MessageType === 'reaction'` → reaction with
+  emoji = Body and targetMessageId = OriginalRepliedMessageSid;
+  `OriginalRepliedMessageSid` (non-reaction) → quoted { id }. Full param bag on `raw`.
+  Unmapped/contentless payloads are skipped silently (debug log).
+- `send(chatId, content)`: POST
+  `{apiBaseUrl}/2010-04-01/Accounts/{accountSid}/Messages.json` (basic auth,
+  form-encoded): `From` = whatsappNumber (whatsapp:-prefixed), `To` = chatId
+  ('whatsapp:' prepended when missing), `Body` = text, media URL → `MediaUrl`
+  (Twilio has NO binary upload for messaging: Buffer/local-path media → throw a clear
+  Error saying Twilio needs a public URL), location →
+  `PersistentAction = ['geo:{lat},{lon}|{name}']` PLUS a synthesized Body when none is
+  set (`name ?? address ?? '{lat},{lon}'` — the API rejects requests without
+  Body/MediaUrl, error 21602), buttons → numbered text fallback
+  appended to Body (native buttons need pre-registered Content Templates — out of
+  scope v0.1, documented), `replyTo` → skipped with debug log (no API support).
+  Non-2xx → throw with status + body; `SendResult.id` = response `sid`.
+- `sendTyping`/`markRead`: NOT implemented (omit the optional methods — Twilio does not
+  expose them for WhatsApp; Bot feature-detects absence).
+- `start` with `port` → own node:http server via handleRequest (404 others); without
+  `port` → validate config only (user mounts handleRequest). `stop` idempotent.
+
+Tests (offline, mirroring cloud-api's): signature validation accept/reject/missing +
+the sorted-params algorithm against a fixture computed with node:crypto; TwiML 200
+response; status-callback skip; dedup on redelivered MessageSid; mapping fixtures
+(text, button reply, media incl. download via a fake Twilio server with auth asserted,
+location, reaction, quoted); send body construction (prefix handling, media URL,
+Buffer throws, location PersistentAction, buttons fallback, non-2xx throws);
+handleRequest rawBody param path; lifecycle. Run against a real ephemeral node:http
+server + fake Twilio API as apiBaseUrl.
+
+Docs: docs/transports/twilio.md — sandbox quickstart (join code), production sender
+setup, webhookUrl/proxy caveat, the 24-hour session window + template limitation,
+capability table vs the other transports (no buttons, no typing, no read receipts,
+URL-only outbound media).
+
+create-wappa-agent: `--transport` gains `twilio` (deps @wappa/core + @wappa/twilio +
+provider; .env.example: TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_WHATSAPP_NUMBER,
+PORT; README documents the sandbox flow).
+
+---
+
 # @wappa/anthropic
 
 Deps: `@anthropic-ai/sdk@^0.123.0`, `@wappa/core`. Verify against installed SDK types.

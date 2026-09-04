@@ -1,14 +1,35 @@
 {
   "files": [],
   "references": [
-    { "path": "packages/core" },
-    { "path": "packages/baileys" },
-    { "path": "packages/cloud-api" },
-    { "path": "packages/anthropic" },
-    { "path": "packages/openai" },
-    { "path": "packages/create-wappa-agent" },
-    { "path": "examples/echo-bot" },
-    { "path": "examples/support-agent" },
-    { "path": "examples/cloud-api-agent" }
+    {
+      "path": "packages/core"
+    },
+    {
+      "path": "packages/baileys"
+    },
+    {
+      "path": "packages/twilio"
+    },
+    {
+      "path": "packages/cloud-api"
+    },
+    {
+      "path": "packages/anthropic"
+    },
+    {
+      "path": "packages/openai"
+    },
+    {
+      "path": "packages/create-wappa-agent"
+    },
+    {
+      "path": "examples/echo-bot"
+    },
+    {
+      "path": "examples/support-agent"
+    },
+    {
+      "path": "examples/cloud-api-agent"
+    }
   ]
 }
