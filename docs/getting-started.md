@@ -110,8 +110,9 @@ local core tarball instead of the registry:
 npm install ../wappa-core-0.1.0.tgz ../wappa-baileys-0.1.0.tgz ../wappa-anthropic-0.1.0.tgz zod
 ```
 
-Swap in `-w packages/cloud-api` / `-w packages/openai` (and the matching tarballs) for
-the Cloud API + OpenAI combination. Your project needs `"type": "module"` and Node >= 20.
+Swap in `-w packages/cloud-api` / `-w packages/twilio` / `-w packages/openai` (and the
+matching tarballs) for the transport + provider combination you want. Your project needs
+`"type": "module"` and Node >= 20.
 
 ## Option C — publish under your own npm scope
 
@@ -129,6 +130,7 @@ npm run build
 npm publish -w packages/core --access public
 npm publish -w packages/baileys --access public
 npm publish -w packages/cloud-api --access public
+npm publish -w packages/twilio --access public
 npm publish -w packages/anthropic --access public
 npm publish -w packages/openai --access public
 ```
@@ -154,10 +156,12 @@ a README; it does not run `npm install` for you.
 | `ANTHROPIC_API_KEY` | `AnthropicProvider` (SDK default when `apiKey` not passed) |
 | `OPENAI_API_KEY` | `OpenAIProvider` (SDK default when `apiKey` not passed) |
 | `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_VERIFY_TOKEN`, `WHATSAPP_APP_SECRET` | your Cloud API bot config — see [transports/cloud-api.md](transports/cloud-api.md) |
+| `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_WHATSAPP_NUMBER`, `TWILIO_WEBHOOK_URL` | your Twilio bot config — see [transports/twilio.md](transports/twilio.md) |
 
 ## Where next
 
 - [Concepts](concepts.md) — how the Bot pipeline and Agent loop actually work
 - [Baileys transport](transports/baileys.md) — QR login, auth persistence, reconnects, ToS caveats
 - [Cloud API transport](transports/cloud-api.md) — full Meta dashboard walkthrough
+- [Twilio transport](transports/twilio.md) — sandbox quickstart, webhook setup, capability table
 - [Testing](testing.md) — test your bot offline before pointing it at real WhatsApp

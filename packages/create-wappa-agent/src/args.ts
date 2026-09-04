@@ -5,7 +5,7 @@
 import { parseArgs } from 'node:util';
 
 /** Valid `--transport` values. */
-export const TRANSPORTS = ['baileys', 'cloud-api'] as const;
+export const TRANSPORTS = ['baileys', 'cloud-api', 'twilio'] as const;
 /** Valid `--provider` values. */
 export const PROVIDERS = ['anthropic', 'openai'] as const;
 

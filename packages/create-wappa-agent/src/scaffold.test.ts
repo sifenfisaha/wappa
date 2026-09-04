@@ -73,7 +73,19 @@ describe('scaffoldProject', () => {
     ['baileys', 'openai'],
     ['cloud-api', 'anthropic'],
     ['cloud-api', 'openai'],
+    ['twilio', 'anthropic'],
+    ['twilio', 'openai'],
   ] as const;
+
+  const TRANSPORT_CLASS = {
+    baileys: 'BaileysTransport',
+    'cloud-api': 'CloudApiTransport',
+    twilio: 'TwilioTransport',
+  } as const;
+  const PROVIDER_CLASS = {
+    anthropic: 'AnthropicProvider',
+    openai: 'OpenAIProvider',
+  } as const;
 
   it.each(combos)('generates a complete %s + %s project', async (transport, provider) => {
     const dir = path.join(sandbox, `combo-${transport}-${provider}`);
@@ -106,14 +118,14 @@ describe('scaffoldProject', () => {
     expect(pkg.scripts['start']).toBe('node --env-file=.env dist/index.js');
 
     const index = await readFile(path.join(dir, 'src', 'index.ts'), 'utf8');
-    const expectedTransport = transport === 'baileys' ? 'BaileysTransport' : 'CloudApiTransport';
-    const otherTransport = transport === 'baileys' ? 'CloudApiTransport' : 'BaileysTransport';
-    const expectedProvider = provider === 'anthropic' ? 'AnthropicProvider' : 'OpenAIProvider';
-    const otherProvider = provider === 'anthropic' ? 'OpenAIProvider' : 'AnthropicProvider';
-    expect(index).toContain(expectedTransport);
-    expect(index).not.toContain(otherTransport);
-    expect(index).toContain(expectedProvider);
-    expect(index).not.toContain(otherProvider);
+    expect(index).toContain(TRANSPORT_CLASS[transport]);
+    expect(index).toContain(PROVIDER_CLASS[provider]);
+    for (const other of Object.values(TRANSPORT_CLASS)) {
+      if (other !== TRANSPORT_CLASS[transport]) expect(index).not.toContain(other);
+    }
+    for (const other of Object.values(PROVIDER_CLASS)) {
+      if (other !== PROVIDER_CLASS[provider]) expect(index).not.toContain(other);
+    }
     expect(index).not.toMatch(/__[A-Z][A-Z0-9_]*__/);
 
     const env = await readFile(path.join(dir, '.env.example'), 'utf8');
@@ -124,11 +136,22 @@ describe('scaffoldProject', () => {
       expect(env).toContain('WHATSAPP_PHONE_NUMBER_ID=');
       expect(env).toContain('WHATSAPP_VERIFY_TOKEN=');
     }
+    if (transport === 'twilio') {
+      expect(env).toContain('TWILIO_ACCOUNT_SID=');
+      expect(env).toContain('TWILIO_AUTH_TOKEN=');
+      expect(env).toContain('TWILIO_WHATSAPP_NUMBER=');
+      expect(env).toContain('PORT=');
+    }
 
     const readme = await readFile(path.join(dir, 'README.md'), 'utf8');
     if (transport === 'baileys') {
       expect(readme).toMatch(/Terms of Service/);
       expect(readme).toMatch(/unofficial/i);
+    } else if (transport === 'twilio') {
+      expect(readme).toMatch(/webhook/i);
+      expect(readme).toMatch(/sandbox/i);
+      expect(readme).toMatch(/join/i);
+      expect(readme).toMatch(/ngrok/i);
     } else {
       expect(readme).toMatch(/webhook/i);
       expect(readme).toMatch(/verify token/i);

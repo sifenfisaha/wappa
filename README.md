@@ -3,7 +3,7 @@
 `wappa` is a TypeScript framework for building WhatsApp agents — bots whose "brain" is an
 LLM with tool-calling and whose "body" is a pluggable WhatsApp transport. You define an
 agent (instructions + tools + provider), pick a transport (Baileys for personal-number/QR
-login, or the official WhatsApp Cloud API), and run.
+login, the official WhatsApp Cloud API, or Twilio's WhatsApp API), and run.
 
 ## Features
 
@@ -33,6 +33,7 @@ login, or the official WhatsApp Cloud API), and run.
       ┌──────────────┴───────────────┐
       │           Transport          │   @wappa/baileys    (personal number, QR login)
       │  QR / webhooks / Graph API   │   @wappa/cloud-api  (official Meta Cloud API)
+      │                              │   @wappa/twilio     (Twilio WhatsApp BSP)
       └──────────────┬───────────────┘
                      │  InboundMessage / OutboundPayload (normalized)
       ┌──────────────┴───────────────┐
@@ -128,6 +129,7 @@ through step by step in [docs/transports/cloud-api.md](docs/transports/cloud-api
 | `@wappa/core/testing`| `MockTransport` + `ScriptedProvider` for offline tests                              |
 | `@wappa/baileys`     | Baileys transport — personal number via QR login (unofficial client, see below)     |
 | `@wappa/cloud-api`   | Official WhatsApp Cloud API transport (Meta webhook + Graph API, no Meta SDK)       |
+| `@wappa/twilio`      | Twilio WhatsApp transport (form-encoded webhook + Messages REST API, no Twilio SDK) |
 | `@wappa/anthropic`   | Claude provider (Anthropic Messages API), default model `claude-sonnet-5`           |
 | `@wappa/openai`      | OpenAI provider (Chat Completions), default model `gpt-5`; `baseURL` for Ollama etc.|
 | `create-wappa-agent` | Project scaffolder: `npm create wappa-agent my-bot`                                  |
@@ -138,6 +140,7 @@ through step by step in [docs/transports/cloud-api.md](docs/transports/cloud-api
 - [Concepts](docs/concepts.md) — Bot pipeline, Agent loop, tools, sessions, middleware, handoff
 - [Baileys transport](docs/transports/baileys.md)
 - [Cloud API transport](docs/transports/cloud-api.md)
+- [Twilio transport](docs/transports/twilio.md)
 - [Providers](docs/providers.md) — Anthropic, OpenAI, OpenAI-compatible servers, custom providers
 - [Testing](docs/testing.md) — unit-testing bots with `MockTransport` + `ScriptedProvider`
 - [Recipes](docs/recipes.md) — handoff, media, groups, proactive messages, transcription, rate limits
@@ -163,8 +166,8 @@ Deliberately **not** in v0.1 (several have recipes showing how to do them yourse
 
 `@wappa/baileys` builds on [Baileys](https://github.com/WhiskeySockets/Baileys), an
 **unofficial** WhatsApp Web client. Using it may violate WhatsApp's Terms of Service and
-**can get phone numbers banned**. Use a number you can afford to lose, and prefer the
-official Cloud API transport (`@wappa/cloud-api`) for anything production-grade.
+**can get phone numbers banned**. Use a number you can afford to lose, and prefer an
+official transport (`@wappa/cloud-api` or `@wappa/twilio`) for anything production-grade.
 
 ## License
 

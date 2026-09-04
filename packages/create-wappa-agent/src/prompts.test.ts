@@ -62,11 +62,22 @@ describe('resolveChoices', () => {
     });
   });
 
+  it('picks twilio by menu number', async () => {
+    const io = streams(['twilio-dir', '3', '1']);
+    const choices = await resolveChoices(base, io);
+    expect(choices).toEqual({
+      targetDir: 'twilio-dir',
+      transport: 'twilio',
+      provider: 'anthropic',
+    });
+    expect(io.transcript()).toContain('twilio');
+  });
+
   it('re-asks after an invalid menu answer', async () => {
     const io = streams(['dir', '9', 'nope', 'cloud-api', '1']);
     const choices = await resolveChoices(base, io);
     expect(choices).toEqual({ targetDir: 'dir', transport: 'cloud-api', provider: 'anthropic' });
-    expect(io.transcript()).toContain('Please answer 1-2');
+    expect(io.transcript()).toContain('Please answer 1-3');
   });
 
   it('only prompts for the values flags left open', async () => {

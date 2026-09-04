@@ -1,7 +1,7 @@
 /**
  * Project generation: loads plain-text templates from the package's
  * `templates/` directory, substitutes `__PLACEHOLDER__` variables, and writes
- * the new project. All 4 transport×provider combos are composed from ONE
+ * the new project. All transport×provider combos are composed from ONE
  * parameterized src/index.ts template plus per-choice partial snippets.
  */
 import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
@@ -35,6 +35,11 @@ const TRANSPORT_META: Record<TransportChoice, ChoiceMeta> = {
     dep: '@wappa/cloud-api',
     label: 'WhatsApp Cloud API (official)',
     partial: 'transport-cloud-api.tmpl',
+  },
+  twilio: {
+    dep: '@wappa/twilio',
+    label: 'Twilio WhatsApp (BSP)',
+    partial: 'transport-twilio.tmpl',
   },
 };
 

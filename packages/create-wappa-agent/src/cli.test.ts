@@ -145,6 +145,66 @@ describe('built CLI', () => {
     120_000
   );
 
+  it(
+    'scaffolds twilio + anthropic with flags and --yes',
+    async () => {
+      const { code, stdout } = await runCli(
+        ['twilio-bot', '--transport', 'twilio', '--provider', 'anthropic', '--yes'],
+        sandbox
+      );
+      expect(code).toBe(0);
+      expect(stdout).toContain('sandbox');
+
+      const dir = path.join(sandbox, 'twilio-bot');
+      const pkg = JSON.parse(await readFile(path.join(dir, 'package.json'), 'utf8')) as {
+        dependencies: Record<string, string>;
+      };
+      expect(pkg.dependencies).toEqual({
+        '@wappa/core': '^0.1.0',
+        '@wappa/twilio': '^0.1.0',
+        '@wappa/anthropic': '^0.1.0',
+      });
+
+      const index = await readFile(path.join(dir, 'src', 'index.ts'), 'utf8');
+      expect(index).toContain('TwilioTransport');
+      expect(index).toContain('AnthropicProvider');
+
+      const env = await readFile(path.join(dir, '.env.example'), 'utf8');
+      expect(env).toContain('TWILIO_ACCOUNT_SID=');
+      expect(env).toContain('TWILIO_AUTH_TOKEN=');
+      expect(env).toContain('TWILIO_WHATSAPP_NUMBER=');
+      expect(env).toContain('PORT=');
+      expect(env).toContain('ANTHROPIC_API_KEY=');
+
+      const readme = await readFile(path.join(dir, 'README.md'), 'utf8');
+      expect(readme).toMatch(/sandbox/i);
+      expect(readme).toMatch(/join/i);
+      expect(readme).toMatch(/ngrok/i);
+
+      await typecheck(dir, ['core', 'twilio', 'anthropic']);
+    },
+    120_000
+  );
+
+  it(
+    'scaffolds twilio + openai with flags and --yes',
+    async () => {
+      const { code } = await runCli(
+        ['twilio-openai-bot', '--transport', 'twilio', '--provider', 'openai', '--yes'],
+        sandbox
+      );
+      expect(code).toBe(0);
+
+      const dir = path.join(sandbox, 'twilio-openai-bot');
+      const index = await readFile(path.join(dir, 'src', 'index.ts'), 'utf8');
+      expect(index).toContain('TwilioTransport');
+      expect(index).toContain('OpenAIProvider');
+
+      await typecheck(dir, ['core', 'twilio', 'openai']);
+    },
+    120_000
+  );
+
   it('defaults transport and provider under bare --yes', async () => {
     const { code } = await runCli(['defaults-bot', '--yes'], sandbox);
     expect(code).toBe(0);
@@ -175,7 +235,7 @@ describe('built CLI', () => {
   it('rejects an invalid --transport with usage on stderr', async () => {
     const { code, stderr } = await runCli(['x', '--transport', 'sms', '--yes'], sandbox);
     expect(code).toBe(1);
-    expect(stderr).toMatch(/baileys, cloud-api/);
+    expect(stderr).toMatch(/baileys, cloud-api, twilio/);
     expect(stderr).toContain('Usage:');
   });
 
@@ -198,5 +258,6 @@ describe('built CLI', () => {
     expect(code).toBe(0);
     expect(stdout).toContain('Usage:');
     expect(stdout).toContain('--transport');
+    expect(stdout).toContain('baileys|cloud-api|twilio');
   });
 });

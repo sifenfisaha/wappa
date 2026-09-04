@@ -1,0 +1,59 @@
+<<<import>>>
+import { TwilioTransport } from '@wappa/twilio';
+<<<setup>>>
+/** Read a required environment variable, failing fast with a helpful message. */
+function requireEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) throw new Error(`Missing environment variable ${name} — see .env.example`);
+  return value;
+}
+
+// Twilio WhatsApp (BSP) — the transport runs a webhook server on PORT.
+// Point your Twilio sender (or the sandbox) at it; README.md walks through
+// the setup. Note Twilio WhatsApp is DM-only and outbound media must be a
+// public URL.
+const transport = new TwilioTransport({
+  accountSid: requireEnv('TWILIO_ACCOUNT_SID'),
+  authToken: requireEnv('TWILIO_AUTH_TOKEN'),
+  whatsappNumber: requireEnv('TWILIO_WHATSAPP_NUMBER'),
+  // Exact public URL Twilio POSTs to — keeps signature validation correct
+  // behind proxies/tunnels (strongly recommended in production).
+  webhookUrl: process.env.TWILIO_WEBHOOK_URL || undefined,
+  port: Number(process.env.PORT || 3000),
+});
+<<<env>>>
+# Twilio credentials — from the Twilio Console: https://console.twilio.com/
+TWILIO_ACCOUNT_SID=
+TWILIO_AUTH_TOKEN=
+# Your Twilio WhatsApp sender, e.g. whatsapp:+14155238886 (the sandbox number
+# works — the 'whatsapp:' prefix is optional).
+TWILIO_WHATSAPP_NUMBER=
+# Exact public URL Twilio POSTs to (scheme + host + path), used for webhook
+# signature validation. Strongly recommended behind proxies/tunnels, e.g.
+# https://<your-host>/webhook — leave empty to reconstruct from the Host header.
+TWILIO_WEBHOOK_URL=
+# Port for the webhook server.
+PORT=3000
+<<<readme>>>
+## Webhook setup (Twilio WhatsApp)
+
+The bot starts a webhook server on `PORT` (default 3000). Point Twilio at it:
+
+1. Copy your Account SID and Auth Token from the
+   [Twilio Console](https://console.twilio.com/) into `.env`.
+2. Easiest start — the **WhatsApp sandbox** (Console → Messaging → Try it out →
+   Send a WhatsApp message): send the shown join code (`join <two-words>`) from
+   your phone to the sandbox number, and set `TWILIO_WHATSAPP_NUMBER` to that
+   number (e.g. `whatsapp:+14155238886`). For production, use your approved
+   WhatsApp sender instead.
+3. Expose the server on a public HTTPS URL — deploy it, or tunnel during
+   development (e.g. `ngrok http 3000`).
+4. Set the sandbox's (or sender's) **"When a message comes in"** webhook to
+   `https://<your-host>/webhook` (method POST), and put the same URL in
+   `TWILIO_WEBHOOK_URL` so signature validation checks the exact public URL —
+   this matters behind tunnels/proxies like ngrok, where the Host header the
+   bot sees differs from the public one.
+
+Then message the sandbox number on WhatsApp to try it out. Notes: Twilio
+WhatsApp is DM-only, sandbox sessions expire after 72 hours (re-send the join
+code), and outbound media must be a public URL.

@@ -327,11 +327,13 @@ export class CloudApiTransport implements Transport {
       this.rememberSeen(msg.id);
       this.rememberLastInbound(msg.chatId, msg.id);
       const handlers = this.handlers;
-      void Promise.resolve(handlers.onMessage(msg)).catch((err: unknown) => {
-        const e = err instanceof Error ? err : new Error(String(err));
-        if (handlers.onError) handlers.onError(e);
-        else this.logger.error('cloud-api: onMessage handler failed', { error: e.message });
-      });
+      void Promise.resolve()
+        .then(() => handlers.onMessage(msg))
+        .catch((err: unknown) => {
+          const e = err instanceof Error ? err : new Error(String(err));
+          if (handlers.onError) handlers.onError(e);
+          else this.logger.error('cloud-api: onMessage handler failed', { error: e.message });
+        });
     }
   }
 

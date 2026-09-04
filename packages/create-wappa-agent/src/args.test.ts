@@ -30,10 +30,14 @@ describe('parseCliArgs', () => {
     expect(parseCliArgs([])).toEqual({ yes: false, help: false });
   });
 
+  it('accepts the twilio transport', () => {
+    expect(parseCliArgs(['--transport', 'twilio']).transport).toBe('twilio');
+  });
+
   it('rejects an invalid transport, naming the valid values', () => {
     expect(() => parseCliArgs(['--transport', 'telegram'])).toThrowError(UsageError);
     expect(() => parseCliArgs(['--transport', 'telegram'])).toThrowError(
-      /baileys, cloud-api/
+      /baileys, cloud-api, twilio/
     );
   });
 

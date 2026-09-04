@@ -16,7 +16,7 @@ const transport = new CloudApiTransport({
   phoneNumberId: requireEnv('WHATSAPP_PHONE_NUMBER_ID'),
   verifyToken: requireEnv('WHATSAPP_VERIFY_TOKEN'),
   appSecret: process.env.WHATSAPP_APP_SECRET,
-  port: Number(process.env.PORT ?? 3000),
+  port: Number(process.env.PORT || 3000),
 });
 <<<env>>>
 # WhatsApp Cloud API credentials — from the Meta app dashboard

@@ -21,9 +21,9 @@ for interactively (or defaulted with --yes). Refuses non-empty directories.
 
 Options:
   --transport <${TRANSPORTS.join('|')}>  WhatsApp transport (default: ${DEFAULT_TRANSPORT})
-  --provider <${PROVIDERS.join('|')}>    LLM provider (default: ${DEFAULT_PROVIDER})
-  -y, --yes                          Skip prompts; use defaults for anything omitted
-  -h, --help                         Show this help
+  --provider <${PROVIDERS.join('|')}>           LLM provider (default: ${DEFAULT_PROVIDER})
+  -y, --yes                               Skip prompts; use defaults for anything omitted
+  -h, --help                              Show this help
 
 Defaults: dir ${DEFAULT_DIR}, transport ${DEFAULT_TRANSPORT}, provider ${DEFAULT_PROVIDER}.
 `;
@@ -56,6 +56,11 @@ function nextSteps(result: ScaffoldResult, choices: ResolvedChoices): string {
     lines.push(
       'A QR code is printed on first start — scan it with WhatsApp on your phone.',
       'Note: Baileys is an unofficial client (ToS risk) — see README.md.'
+    );
+  } else if (choices.transport === 'twilio') {
+    lines.push(
+      'Then point your Twilio WhatsApp webhook at the server — README.md covers',
+      'the sandbox join flow.'
     );
   } else {
     lines.push('Then point your Meta webhook at the server — README.md walks through it.');

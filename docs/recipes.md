@@ -83,6 +83,8 @@ await bot.send(chatId, {
     kind: 'document',
     data: pdfBuffer,                    // Buffer
     mimetype: 'application/pdf',        // REQUIRED for Buffer/path uploads on Cloud API
+    // Note: Twilio accepts URL media only — Buffer/path data throws there; host the
+    // file and pass its public https URL as `data` instead.
     filename: 'invoice.pdf',
   },
 });
@@ -109,8 +111,8 @@ bot.use(async (ctx, next) => {
 ```
 
 For exact mention metadata on Baileys, the raw message is available as an escape hatch
-at `ctx.message.raw` (`contextInfo.mentionedJid`). The Cloud API is DM-only, so this
-middleware is a no-op there. To ignore groups entirely, skip the middleware and set
+at `ctx.message.raw` (`contextInfo.mentionedJid`). The Cloud API and Twilio are DM-only,
+so this middleware is a no-op there. To ignore groups entirely, skip the middleware and set
 `ignoreGroups: true` on the Bot instead.
 
 ## Proactive and scheduled messages
@@ -136,8 +138,9 @@ process.on('SIGINT', async () => {
 ```
 
 Two caveats: on Baileys, sends while disconnected reject (catch them, as above); on the
-Cloud API, business-initiated messages outside the 24-hour customer service window must
-be template messages — plain proactive texts only reach users who wrote to you recently.
+Cloud API and Twilio, business-initiated messages outside the 24-hour customer service
+window must be template messages — plain proactive texts only reach users who wrote to
+you recently.
 
 ## Voice-note transcription middleware (sketch)
 
@@ -186,8 +189,10 @@ the same pattern and keep state wherever you need it.
 ## Portable quick-reply buttons
 
 `OutboundPayload.buttons` (max 3) renders differently per transport: the Cloud API shows
-native buttons and the reply comes back with `buttonId` set; Baileys renders a numbered
-text fallback and the reply is plain text. Portable code therefore matches on **titles**:
+native buttons and the reply comes back with `buttonId` set; Baileys and Twilio render a
+numbered text fallback and the reply is plain text (on Twilio, native buttons require
+pre-registered Content Templates, which wappa does not use in v0.1). Portable code
+therefore matches on **titles**:
 
 ```ts
 await ctx.reply({
@@ -200,7 +205,7 @@ await ctx.reply({
 
 bot.hears('card', handleCard); // matches the tapped title on Cloud API…
 bot.hears('cash', handleCash);
-bot.hears('1', handleCard);    // …and the numbered fallback replies on Baileys
+bot.hears('1', handleCard);    // …and the numbered fallback replies on Baileys/Twilio
 bot.hears('2', handleCash);
 ```
 

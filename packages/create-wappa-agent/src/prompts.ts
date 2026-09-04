@@ -17,6 +17,7 @@ export const DEFAULT_PROVIDER: ProviderChoice = 'anthropic';
 const TRANSPORT_HELP: Record<TransportChoice, string> = {
   baileys: 'personal number, QR login (unofficial — ToS risk)',
   'cloud-api': 'official WhatsApp Cloud API (Meta webhook)',
+  twilio: 'Twilio WhatsApp (BSP webhook, sandbox-friendly)',
 };
 
 /** One-line description per provider, shown in the menu. */
